@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>clock</title>
+</head>
+
+<body>
+    <!--动画--钟表-->
+    <canvas id="clock" height="300" width="300" style="border:1px solid #000000; display:block; background-color: #000000">
+        您的浏览器不支持HTML5。
+    </canvas>
+
+    <script>
+       
+        function init() {
+            let c=document.getElementById("clock");
+            if(!c.getContext) return;
+            let ctx=c.getContext("2d");
+            draw(ctx);
+        }
+        init();
+
+        function draw(ctx) {
+            requestAnimationFrame(function step(){
+                drawDial(ctx);
+                drawAllHands(ctx);
+                requestAnimationFrame(step);
+            });
+        }
+
+        /*绘制时针、分针和秒针*/
+        function drawAllHands(ctx) {
+            let time = new Date();
+            let pi = Math.PI;
+
+            let s = time.getSeconds(); //得到当前秒数
+            let m = time.getMinutes(); //得到当前分钟数
+            let h = time.getHours(); //得到当前小时数
+            
+            let angleSecond = s / 60 * (2*pi); //秒针旋转角度
+            let angleMinute = (m + s/60) / 60 * (2*pi); //分针旋转角度
+            let angleHour = (h + m/60 + s/60/60) /12 * (2*pi); //时针旋转角度
+
+            drawHand(angleHour,60,6,"red",ctx); //绘制时针
+            drawHand(angleMinute,106,4,"green",ctx); //绘制分针
+            drawHand(angleSecond,129,2,"blue",ctx); //绘制秒针
+        }
+
+        /*绘制指针
+        *参数1：指针的角度；
+        *参数2：指针的长度；
+        *参数3：指针的宽度；
+        *参数4：指针的颜色；
+        *参数5：2为画布；
+        */
+        function drawHand(angle,len,wid,color,ctx) {
+            let pi = Math.PI;
+            ctx.save();
+            ctx.translate(150,150);
+            ctx.rotate(-pi/2 + angle);
+            ctx.beginPath();
+            ctx.moveTo(-4,0);
+            ctx.lineTo(len,0);
+            ctx.lineWidth = wid;
+            ctx.strokeStyle = color;
+            ctx.lineCap = "round";
+            ctx.stroke();
+            ctx.closePath();
+            ctx.restore();
+        }
+
+
+        //绘制表盘
+        function drawDial(ctx){
+            let pi = Math.PI;
+
+            ctx.clearRect(0,0,300,300);
+            ctx.save();
+
+            //绘制圆周
+            ctx.translate(150,150);
+            ctx.beginPath();
+            ctx.arc(0,0,148,0,pi * 2);
+            ctx.stroke();
+            ctx.closePath();
+
+            //画刻度线
+            for(let i = 0; i < 60; i++){
+                ctx.save();
+                ctx.rotate(-pi / 2 + i * 6 / 180 * pi);
+                ctx.beginPath();
+                ctx.moveTo(110,0);
+                ctx.lineTo(140,0);
+                ctx.lineWidth = i % 5 ? 2 : 4;
+                ctx.strokeStyle = i % 5 ? "blue" : "red";
+                ctx.stroke();
+                ctx.closePath();
+                ctx.restore();
+            }
+
+            //标记数字
+            for(let i = 1; i < 13; i++) {
+                let pi = Math.PI;
+                let angle = i * pi / 6;
+                ctx.textBaseline = "middle";
+                ctx.textAlign = "center";
+                ctx.save();
+                ctx.rotate(angle);
+                ctx.translate(0,-90);
+                ctx.rotate(-angle);
+                ctx.font = "20px Arial";
+                ctx.fillStyle = "rgba(255,255,255,1)";
+                ctx.fillText(i.toString(),0,0);
+                ctx.rotate(angle);
+                ctx.translate(0,90);
+                ctx.restore();
+            }
+
+            ctx.restore();
+        }
+
+        
+
+    </script>
+
+</body>
+</html>
